@@ -7,7 +7,7 @@ import math
 
 class CalculatorApp(App):
     def build(self):
-        self.icon = "calc.jpg"
+        self.icon = "calc.png"
         self.operators = ['+', '-', '*', '/', '%']
         self.last_was_operator = False
         self.last_button = None
@@ -136,3 +136,4 @@ class CalculatorApp(App):
 
 if __name__ == '__main__':
     CalculatorApp().run()
+
