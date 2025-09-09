@@ -19,19 +19,19 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install dependencies
+      - name: Install Cython dependency
         run: |
           python -m pip install --upgrade pip
           pip install Cython
 
-      - name: Build APK with Buildozer
-        uses: kivy/buildozer-action@v1
+      - name: Build APK with Buildozer Action
+        uses: digreatbrian/buildozer-action@v2
         with:
-          command: buildozer -v android debug
-          workdir: .
+          python-version: "3.10"
+          buildozer-cmd: buildozer -v android debug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CalculatorApp-APK
-          path: bin/*.apk
+          name: calculator-apk
+          path: ./bin/*.apk
