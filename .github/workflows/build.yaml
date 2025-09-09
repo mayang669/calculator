@@ -4,43 +4,38 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip python3-setuptools git unzip openjdk-11-jdk build-essential \
-            libffi-dev libssl-dev libsqlite3-dev zlib1g-dev wget
+      - name: Set up Java (for Android SDK/Gradle)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-    - name: Install Buildozer & Cython
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install cython buildozer
+      - name: Install dependencies (libncurses5 + libtinfo5 + Build essentials)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget build-essential python3-pip python3-virtualenv
+          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libncurses5_6.4-2_amd64.deb
+          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_6.4-2_amd64.deb
+          sudo dpkg -i libncurses5_6.4-2_amd64.deb libtinfo5_6.4-2_amd64.deb || sudo apt -f install -y
+          rm *.deb
+          pip3 install --upgrade cython buildozer
 
-    - name: Install Android SDK & Build Tools
-      run: |
-        mkdir -p $HOME/Android/cmdline-tools
-        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-        unzip cmdline-tools.zip -d $HOME/Android/cmdline-tools
-        yes | $HOME/Android/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/Android "platform-tools" "platforms;android-33" "build-tools;33.0.2" "cmdline-tools;latest"
-        echo "export ANDROID_HOME=$HOME/Android" >> $GITHUB_ENV
-        echo "export PATH=$PATH:$HOME/Android/cmdline-tools/cmdline-tools/bin:$HOME/Android/platform-tools:$HOME/Android/build-tools/33.0.2" >> $GITHUB_ENV
+      - name: Build APK with Buildozer
+        run: |
+          buildozer android debug
 
-    - name: Initialize Buildozer
-      run: buildozer init
-
-    - name: Build APK
-      run: buildozer android debug
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
-      with:
-        name: myapp-apk
-        path: bin/*.apk
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Calculator-APK
+          path: bin/*.apk
