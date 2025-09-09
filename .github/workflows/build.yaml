@@ -19,6 +19,7 @@ jobs:
           path: .buildozer_global
           key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
+      # Cache Buildozer local directory
       - name: Cache Buildozer
         uses: actions/cache@v4
         with:
@@ -28,12 +29,12 @@ jobs:
       # Build APK with Buildozer
       - name: Build with Buildozer
         id: buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
+        uses: ArtemSBulgakov/buildozer-action@v1.2.0
         with:
           command: buildozer android debug
           buildozer_version: stable
 
-      # Upload APK artifact (✅ fixed v4)
+      # Upload APK artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
