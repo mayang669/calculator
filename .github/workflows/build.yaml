@@ -14,6 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
       - name: Set up Java (for Android SDK/Gradle)
         uses: actions/setup-java@v4
         with:
@@ -23,11 +28,16 @@ jobs:
       - name: Install dependencies (libncurses5 + libtinfo5 for Buildozer)
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget
+          sudo apt-get install -y wget build-essential python3-pip python3-virtualenv
           wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libncurses5_6.4-2_amd64.deb
           wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_6.4-2_amd64.deb
-          sudo dpkg -i libncurses5_6.4-2_amd64.deb libtinfo5_6.4-2_amd64.deb
+          sudo dpkg -i libncurses5_6.4-2_amd64.deb libtinfo5_6.4-2_amd64.deb || sudo apt -f install -y
           rm *.deb
+
+      - name: Install Buildozer
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install buildozer cython
 
       - name: Build with Buildozer
         uses: digreatbrian/buildozer-action@v2
