@@ -20,15 +20,10 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Install required system packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip zip libncurses5 libtinfo5
-
       - name: Build with Buildozer
         uses: digreatbrian/buildozer-action@v2
         with:
-          buildozer-cmd: buildozer -v android debug
+          command: buildozer -v android debug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
