@@ -11,31 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Java (for Android SDK/Gradle)
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
+    - name: Build APK using Buildozer Docker
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/app -w /app kivy/buildozer:latest \
+        buildozer android debug
 
-      - name: Install dependencies (libncurses5 + libtinfo5 + Build essentials)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget build-essential python3-pip python3-virtualenv
-          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libncurses5_6.4-2_amd64.deb
-          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_6.4-2_amd64.deb
-          sudo dpkg -i libncurses5_6.4-2_amd64.deb libtinfo5_6.4-2_amd64.deb || sudo apt -f install -y
-          rm *.deb
-          pip3 install --upgrade cython buildozer
-
-      - name: Build APK with Buildozer
-        run: |
-          buildozer android debug
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Calculator-APK
-          path: bin/*.apk
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: myapp-apk
+        path: bin/*.apk
